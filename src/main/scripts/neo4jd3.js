@@ -186,10 +186,7 @@ function Neo4jD3(_selector, _options) {
 
         appendRingToNode(n);
         appendOutlineToNode(n);
-
-        if (options.icons) {
-            appendTextToNode(n);
-        }
+        appendTextToNode(n);
 
         if (options.images) {
             appendImageToNode(n);
@@ -224,10 +221,10 @@ function Neo4jD3(_selector, _options) {
 
     function appendTextToNode(node) {
         return node.append('text')
-                   .attr('class', function(d) {
-                       return 'text' + (icon(d) ? ' icon' : '');
-                   })
-                   .attr('fill', '#ffffff')
+                    .text(function (d) {
+                        return d.properties.name;
+                    })
+                   .attr('fill', '#000000')
                    .attr('font-size', function(d) {
                        return icon(d) ? (options.nodeRadius + 'px') : '10px';
                    })
@@ -235,10 +232,6 @@ function Neo4jD3(_selector, _options) {
                    .attr('text-anchor', 'middle')
                    .attr('y', function(d) {
                        return icon(d) ? (parseInt(Math.round(options.nodeRadius * 0.32)) + 'px') : '4px';
-                   })
-                   .html(function(d) {
-                       var _icon = icon(d);
-                       return _icon ? '&#x' + _icon : d.id;
                    });
     }
 
@@ -672,7 +665,6 @@ function Neo4jD3(_selector, _options) {
                 target: s.nodes + 1 + i,
                 linknum: s.relationships + 1 + i
             };
-
             data.relationships[data.relationships.length] = relationship;
         }
 
