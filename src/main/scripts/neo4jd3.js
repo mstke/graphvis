@@ -948,6 +948,11 @@ function Neo4jD3(_selector, _options) {
 //        smoothTransform(svgTranslate, svgScale);
     }
 
+    function resetWithNeo4jData(neo4jData) {
+        var newOptions = Object.assign(_options, { neo4jData: neo4jData, neo4jDataUrl: undefined });
+        init(_selector, newOptions);
+    }
+
     init(_selector, _options);
 
     return {
@@ -957,6 +962,7 @@ function Neo4jD3(_selector, _options) {
         size: size,
         updateWithD3Data: updateWithD3Data,
         updateWithNeo4jData: updateWithNeo4jData,
+        resetWithNeo4jData: resetWithNeo4jData,
         version: version
     };
 }
