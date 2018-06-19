@@ -6,6 +6,7 @@ var conf = require('./conf'),
 
 gulp.task('connect', function() {
     connect.server({
+        port:8081,
         livereload: true,
         root: conf.paths.docs
     });

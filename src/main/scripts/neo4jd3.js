@@ -114,9 +114,49 @@ function Neo4jD3(_selector, _options) {
         appendInfoElement(cls, false, relationship);
     }
 
+    function appendContextMenu(node, index) {
+        // Create the container for the context menu
+        d3.selectAll('.context-menu').data([1])
+            .enter()
+            .append('div')
+            .attr('class', 'context-menu');
+        
+        // Hide the context-menu if it goes out of focus 
+        d3.select('body').on('click.context-menu', function() {
+            d3.select('.context-menu').style('display', 'none');
+        });
+
+        // Append data to the context menu
+        d3.selectAll('.context-menu')
+            .html('')
+            .append('ul')
+            .selectAll('li')
+            .data(options.contextMenu)
+            .enter()
+            .append('li')
+            .on('click', function(item) {
+                item.handler(node);
+            })
+            .append('i')
+            .attr('class',function(d) {  
+                return d.icon;
+            })
+            .text(function (d) {
+                return " " + d.text;
+            });
+
+        // Show the context menu
+        d3.select('.context-menu')
+            .style('left', (d3.event.pageX - 2) + 'px')
+            .style('top', (d3.event.pageY - 2) + 'px')
+            .style('display', 'block');
+        d3.event.preventDefault();        
+    }
+
     function appendNode() {
         return node.enter()
                    .append('g')
+                   .on('contextmenu', appendContextMenu)
                    .attr('class', function(d) {
                        var highlight, i,
                            classes = 'node',
@@ -186,7 +226,7 @@ function Neo4jD3(_selector, _options) {
         appendRingToNode(n);
         appendOutlineToNode(n);
         appendTextToNode(n);
-
+        
         if (options.images) {
             appendImageToNode(n);
         }
@@ -312,10 +352,6 @@ function Neo4jD3(_selector, _options) {
 
     function clearInfo() {
         info.html('');
-    }
-
-    function color() {
-        return options.colors[options.colors.length * Math.random() << 0];
     }
 
     function colors() {
