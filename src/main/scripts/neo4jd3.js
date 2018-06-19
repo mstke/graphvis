@@ -151,7 +151,6 @@ function Neo4jD3(_selector, _options) {
                        }
                    })
                    .on('dblclick', function(d) {
-                       stickNode(d);
 
                        if (typeof options.onNodeDoubleClick === 'function') {
                            options.onNodeDoubleClick(d);
@@ -625,6 +624,44 @@ function Neo4jD3(_selector, _options) {
 
         return graph;
     }
+    function appendDataToNode(sourceNode, newNodes, newRelationships) {
+        var data = {
+            nodes: [],
+            relationships: []
+        },
+        node,
+        relationship,
+        s = size(),
+        map = {};
+        for (var i = 0; i < newNodes.length; i++) {
+            node = {
+                id: s.nodes + 1 + i,
+                labels: newNodes[i].labels,
+                properties: newNodes[i].properties,
+                x: sourceNode.x,
+                y: sourceNode.y
+            };
+            map[newNodes[i].id] = node.id; 
+            data.nodes[data.nodes.length] = node;
+        }
+        
+        for (var j = 0; j < newRelationships.length; j++) {
+            
+            relationship = {
+                id: s.relationships + 1 + j,
+                type: newRelationships[j].type,
+                startNode: sourceNode.id.toString(),
+                endNode: map[newRelationships[j].endNode],
+                properties: newRelationships[j].properties,
+                source: sourceNode.id,
+                target: map[newRelationships[j].endNode],
+                linknum: s.relationships + 1 + j
+            };
+
+            data.relationships[data.relationships.length] = relationship;
+        }
+        updateWithD3Data(data);
+    }
 
     function randomD3Data(d, maxNodesToGenerate) {
         var data = {
@@ -637,7 +674,6 @@ function Neo4jD3(_selector, _options) {
             numNodes = (maxNodesToGenerate * Math.random() << 0) + 1,
             relationship,
             s = size();
-
         for (i = 0; i < numNodes; i++) {
             label = randomLabel();
 
@@ -667,7 +703,6 @@ function Neo4jD3(_selector, _options) {
             };
             data.relationships[data.relationships.length] = relationship;
         }
-
         return data;
     }
 
@@ -962,6 +997,7 @@ function Neo4jD3(_selector, _options) {
         size: size,
         updateWithD3Data: updateWithD3Data,
         updateWithNeo4jData: updateWithNeo4jData,
+        appendDataToNode: appendDataToNode,
         resetWithNeo4jData: resetWithNeo4jData,
         version: version
     };
