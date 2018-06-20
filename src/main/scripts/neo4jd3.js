@@ -559,7 +559,7 @@ function Neo4jD3(_selector, _options) {
         var simulation = d3.forceSimulation()
             .force('collide', d3.forceCollide().radius(function (d) {
                 return options.minCollision;
-            }).iterations(2))
+            }))
             .force('charge', d3.forceManyBody())
             .force('link', d3.forceLink().id(function (d) {
                 return d.id;
