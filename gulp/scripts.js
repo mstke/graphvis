@@ -30,7 +30,7 @@ gulp.task('scripts', ['scripts:external', 'scripts:internal'], function() {
 
 gulp.task('scripts:external', function() {
     return gulp.src([
-            'node_modules/d3/build/d3.min.js'
+            'node_modules/d3/dist/d3.min.js'
         ])
         .pipe(gulp.dest(conf.paths.docs + '/js'))
         .pipe(connect.reload());
