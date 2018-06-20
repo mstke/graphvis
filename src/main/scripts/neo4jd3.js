@@ -206,9 +206,6 @@ function Neo4jD3(_selector, _options) {
                        }
                    })
                    .on('mouseleave', function(d) {
-                       if (info) {
-                           clearInfo(d);
-                       }
 
                        if (typeof options.onNodeMouseLeave === 'function') {
                            options.onNodeMouseLeave(d);
