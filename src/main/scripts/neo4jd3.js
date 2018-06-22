@@ -656,7 +656,8 @@ function Neo4jD3(_selector, _options) {
 
         return graph;
     }
-    function appendDataToNode(sourceNode, newNodes, newRelationships) {
+    
+    function appendDataToNodeOutward(sourceNode, newNodes, newRelationships) {
         var data = {
             nodes: [],
             relationships: []
@@ -687,6 +688,44 @@ function Neo4jD3(_selector, _options) {
                 properties: newRelationships[j].properties,
                 source: sourceNode.id,
                 target: map[newRelationships[j].endNode],
+                linknum: s.relationships + 1 + j
+            };
+
+            data.relationships[data.relationships.length] = relationship;
+        }
+        updateWithD3Data(data);
+    }
+
+    
+    function appendDataToNodeInward(sourceNode, newNodes, newRelationships) {
+        var data = {
+            nodes: [],
+            relationships: []
+        },
+            node,
+            relationship,
+            s = size(),
+            map = {};
+        for (var i = 0; i < newNodes.length; i++) {
+            node = {
+                id: s.nodes + 1 + i,
+                labels: newNodes[i].labels,
+                properties: newNodes[i].properties,
+                x: sourceNode.x,
+                y: sourceNode.y
+            };
+            map[newNodes[i].id] = node.id;
+            data.nodes[data.nodes.length] = node;
+        }
+        for (var j = 0; j < newRelationships.length; j++) {
+            relationship = {
+                id: s.relationships + 1 + j,
+                type: newRelationships[j].type,
+                startNode: map[newRelationships[j].startNode],
+                endNode: sourceNode.id.toString(),
+                properties: newRelationships[j].properties,
+                source: map[newRelationships[j].startNode],
+                target: sourceNode.id,
                 linknum: s.relationships + 1 + j
             };
 
@@ -1027,7 +1066,8 @@ function Neo4jD3(_selector, _options) {
         size: size,
         updateWithD3Data: updateWithD3Data,
         updateWithNeo4jData: updateWithNeo4jData,
-        appendDataToNode: appendDataToNode,
+        appendDataToNodeOutward: appendDataToNodeOutward,
+        appendDataToNodeInward: appendDataToNodeInward,
         resetWithNeo4jData: resetWithNeo4jData,
         version: version
     };
