@@ -134,8 +134,12 @@ function Neo4jD3(_selector, _options) {
             .data(options.contextMenu)
             .enter()
             .append('li')
+            .on('contextmenu', function (item) {
+                d3.event.preventDefault();
+            })
             .on('click', function (item) {
                 item.handler(node);
+                d3.select('.context-menu').style('display', 'none');
             })
             .append('i')
             .attr('class', function (d) {
@@ -157,6 +161,10 @@ function Neo4jD3(_selector, _options) {
         return node.enter()
             .append('g')
             .on('contextmenu', appendContextMenu)
+            .attr('id', function(d) {
+                d.uuid = guid();
+                return d.uuid;
+            })
             .attr('class', function (d) {
                 var highlight, i,
                     classes = 'node',
@@ -279,6 +287,10 @@ function Neo4jD3(_selector, _options) {
     function appendRelationship() {
         return relationship.enter()
             .append('g')
+            .attr('id', function(d) {
+                d.uuid = guid();
+                return d.uuid;
+            })
             .attr('class', 'relationship')
             .on('dblclick', function (d) {
                 if (typeof options.onRelationshipDoubleClick === 'function') {
@@ -1057,6 +1069,33 @@ function Neo4jD3(_selector, _options) {
         init(_selector, newOptions);
     }
 
+    function removeNode(sourceNode) {
+        relationships = relationships.filter(function(relationship) {
+            if(relationship.source === sourceNode || relationship.target === sourceNode) {
+                d3.select("#" + relationship.uuid).remove();
+                return false;
+            } else {
+                return true;
+            }
+        });
+        nodes = nodes.filter(function(node) {
+            return node !== sourceNode;
+        });
+
+        d3.select("#" + sourceNode.uuid).remove();
+        simulation.nodes(nodes);
+        simulation.force('link').links(relationships);
+    }
+
+    function guid() {
+        function s4() {
+          return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+        }
+        return 'g' + s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+      }
+
     init(_selector, _options);
 
     return {
@@ -1069,6 +1108,7 @@ function Neo4jD3(_selector, _options) {
         appendDataToNodeOutward: appendDataToNodeOutward,
         appendDataToNodeInward: appendDataToNodeInward,
         resetWithNeo4jData: resetWithNeo4jData,
+        removeNode: removeNode,
         version: version
     };
 }
