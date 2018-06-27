@@ -1148,8 +1148,12 @@ function Neo4jD3(_selector, _options) {
             }
         });
         return circles.exit().remove();
-      }
+    }
 
+    function getGraph() {
+        return {'nodes': nodes, 'relationships' : relationships };
+    }
+      
     return {
         appendRandomDataToNode: appendRandomDataToNode,
         neo4jDataToD3Data: neo4jDataToD3Data,
@@ -1162,6 +1166,7 @@ function Neo4jD3(_selector, _options) {
         resetWithNeo4jData: resetWithNeo4jData,
         removeNode: removeNode,
         createViews: createViews,
+        getGraph: getGraph,
         version: version
     };
 }
