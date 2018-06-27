@@ -1100,7 +1100,9 @@ function Neo4jD3(_selector, _options) {
 
 
     function createViews(keys) {
-        var circles = d3.select('svg').selectAll('circle.views').data(keys);
+        
+        d3.selectAll(".views").remove();
+        var circles = d3.select('svg').selectAll('rect.views').data(keys);
         var r=20;
         circles.enter().append('rect').classed('views', true)
         .attr('x', r)
