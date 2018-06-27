@@ -528,7 +528,6 @@ function Neo4jD3(_selector, _options) {
         }
 
         appendGraph(container);
-
         simulation = initSimulation();
 
         if (options.neo4jData) {
@@ -1085,6 +1084,7 @@ function Neo4jD3(_selector, _options) {
         d3.select("#" + sourceNode.uuid).remove();
         simulation.nodes(nodes);
         simulation.force('link').links(relationships);
+        
     }
 
     function guid() {
@@ -1098,6 +1098,58 @@ function Neo4jD3(_selector, _options) {
 
     init(_selector, _options);
 
+
+    function createViews(keys) {
+        var circles = d3.select('svg').selectAll('circle.views').data(keys);
+        var r=20;
+        circles.enter().append('rect').classed('views', true)
+        .attr('x', r)
+        .attr('y', function(node) {
+            return (keys.indexOf(node)+1)*2.2*r + 27;
+        })
+        .attr('rx', r/3)
+        .attr('rx', r/3)
+        .attr('width', r*4)
+        .attr('height', r)
+        .attr('fill', function(node) {
+            return colors()[keys.indexOf(node)+1];
+        })
+        .attr('stroke', function(node) {
+            return "#000000";
+        })
+        .attr('stroke-width', function(node) {
+            return "0.5px";
+        })
+        .attr("cursor", "pointer")
+        .on('click', function(n) {
+            if (typeof options.onViewsClickHandler === 'function') {
+                options.onViewsClickHandler(n);
+            }
+        });
+        
+        var text = d3.select('svg').selectAll('text.views').data(keys);
+        text.enter().append('text').classed('views',true)
+        .attr('text-anchor', 'left')
+        .attr('font-weight', 'bold')
+        .attr('stroke-width' , '0')
+        .attr('stroke-color' , 'white')
+        .attr('fill' , '#696969')
+        .attr('x' , 2*r)
+        .attr('font-size' , "10px")
+        .attr("cursor", "pointer")
+        .text(function(node) {
+            return node;
+        }).attr('y', function(node) {
+            return (keys.indexOf(node)+1)*2.2*r+40;
+        })
+        .on('click', function(n) {
+            if (typeof options.onViewsClickHandler === 'function') {
+                options.onViewsClickHandler(n);
+            }
+        });
+        return circles.exit().remove();
+      }
+
     return {
         appendRandomDataToNode: appendRandomDataToNode,
         neo4jDataToD3Data: neo4jDataToD3Data,
@@ -1109,6 +1161,7 @@ function Neo4jD3(_selector, _options) {
         appendDataToNodeInward: appendDataToNodeInward,
         resetWithNeo4jData: resetWithNeo4jData,
         removeNode: removeNode,
+        createViews: createViews,
         version: version
     };
 }
