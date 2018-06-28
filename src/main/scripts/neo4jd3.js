@@ -181,7 +181,6 @@ function Neo4jD3(_selector, _options) {
             })
             .on('click', function (d) {
                 d.fx = d.fy = null;
-
                 if (typeof options.onNodeClick === 'function') {
                     options.onNodeClick(d);
                 }
@@ -1149,10 +1148,10 @@ function Neo4jD3(_selector, _options) {
                 }
             })
             .on('mouseleave', function (n) {
-            if (typeof options.onViewsMouseLeaveHandler === 'function') {
-                options.onViewsMouseLeaveHandler(n);
-            }
-        });
+                if (typeof options.onViewsMouseLeaveHandler === 'function') {
+                    options.onViewsMouseLeaveHandler(n);
+                }
+            });
         return circles.exit().remove();
     }
 
@@ -1167,6 +1166,48 @@ function Neo4jD3(_selector, _options) {
         nodes.forEach(function (node) {
             d3.select("#" + node.uuid)
                 .classed('node-highlighted', false);
+        });
+    }
+
+    function orientForceGraphVertical(priorities) {
+        nodes.sort(function (a, b) {
+            return priorities[a.labels[0].toLowerCase()] - priorities[b.labels[0].toLowerCase()];
+        });
+
+        var priority = 0;
+        var x = 700;
+        var y = 200;
+
+        nodes.forEach(function (node) {
+            if (priorities[node.labels[0].toLowerCase()] !== priority) {
+                priority = priorities[node.labels[0].toLowerCase()];
+                y += 130;
+                x = 700;
+            }
+            node.fx = x;
+            node.fy = y;
+            x += 150;
+        });
+    }
+
+    function orientForceGraphHorizontal(priorities) {
+        nodes.sort(function (a, b) {
+            return priorities[a.labels[0].toLowerCase()] - priorities[b.labels[0].toLowerCase()];
+        });
+
+        var priority = 0;
+        var x = 700;
+        var y = 200;
+
+        nodes.forEach(function (node) {
+            if (priorities[node.labels[0].toLowerCase()] !== priority) {
+                priority = priorities[node.labels[0].toLowerCase()];
+                y = 200;
+                x += 150;
+            }
+            node.fx = x;
+            node.fy = y;
+            y += 150;
         });
     }
 
@@ -1188,6 +1229,8 @@ function Neo4jD3(_selector, _options) {
         createViews: createViews,
         highlightNodes: highlightNodes,
         unHighlightNodes: unHighlightNodes,
+        orientForceGraphVertical: orientForceGraphVertical,
+        orientForceGraphHorizontal: orientForceGraphHorizontal,
         getGraph: getGraph,
         version: version
     };
