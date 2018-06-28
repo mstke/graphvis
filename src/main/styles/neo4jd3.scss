@@ -56,8 +56,8 @@ body {
         .ring {
             -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=50)';
             filter: alpha(opacity=50);
-            opacity: .5;
-            stroke: #888;
+            opacity: .6;
+            stroke: rgb(255, 0, 0);
             stroke-width: 12px;
         }
     }

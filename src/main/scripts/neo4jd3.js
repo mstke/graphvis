@@ -161,7 +161,7 @@ function Neo4jD3(_selector, _options) {
         return node.enter()
             .append('g')
             .on('contextmenu', appendContextMenu)
-            .attr('id', function(d) {
+            .attr('id', function (d) {
                 d.uuid = guid();
                 return d.uuid;
             })
@@ -177,18 +177,6 @@ function Neo4jD3(_selector, _options) {
                 if (image(d)) {
                     classes += ' node-image';
                 }
-
-                if (options.highlight) {
-                    for (i = 0; i < options.highlight.length; i++) {
-                        highlight = options.highlight[i];
-
-                        if (d.labels[0] === highlight.class && d.properties[highlight.property] === highlight.value) {
-                            classes += ' node-highlighted';
-                            break;
-                        }
-                    }
-                }
-
                 return classes;
             })
             .on('click', function (d) {
@@ -287,7 +275,7 @@ function Neo4jD3(_selector, _options) {
     function appendRelationship() {
         return relationship.enter()
             .append('g')
-            .attr('id', function(d) {
+            .attr('id', function (d) {
                 d.uuid = guid();
                 return d.uuid;
             })
@@ -529,7 +517,6 @@ function Neo4jD3(_selector, _options) {
 
         appendGraph(container);
         simulation = initSimulation();
-
         if (options.neo4jData) {
             loadNeo4jData(options.neo4jData);
         } else if (options.neo4jDataUrl) {
@@ -667,7 +654,7 @@ function Neo4jD3(_selector, _options) {
 
         return graph;
     }
-    
+
     function appendDataToNodeOutward(sourceNode, newNodes, newRelationships) {
         var data = {
             nodes: [],
@@ -707,7 +694,7 @@ function Neo4jD3(_selector, _options) {
         updateWithD3Data(data);
     }
 
-    
+
     function appendDataToNodeInward(sourceNode, newNodes, newRelationships) {
         var data = {
             nodes: [],
@@ -1069,93 +1056,124 @@ function Neo4jD3(_selector, _options) {
     }
 
     function removeNode(sourceNode) {
-        relationships = relationships.filter(function(relationship) {
-            if(relationship.source === sourceNode || relationship.target === sourceNode) {
+        relationships = relationships.filter(function (relationship) {
+            if (relationship.source === sourceNode || relationship.target === sourceNode) {
                 d3.select("#" + relationship.uuid).remove();
                 return false;
             } else {
                 return true;
             }
         });
-        nodes = nodes.filter(function(node) {
+        nodes = nodes.filter(function (node) {
             return node !== sourceNode;
         });
 
         d3.select("#" + sourceNode.uuid).remove();
         simulation.nodes(nodes);
         simulation.force('link').links(relationships);
-        
+
     }
 
     function guid() {
         function s4() {
-          return Math.floor((1 + Math.random()) * 0x10000)
-            .toString(16)
-            .substring(1);
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
         }
         return 'g' + s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-      }
+    }
 
     init(_selector, _options);
 
-
     function createViews(keys) {
-        
         d3.selectAll(".views").remove();
         var circles = d3.select('svg').selectAll('rect.views').data(keys);
-        var r=20;
+        var r = 20;
         circles.enter().append('rect').classed('views', true)
-        .attr('x', r)
-        .attr('y', function(node) {
-            return (keys.indexOf(node)+1)*2.2*r + 27;
-        })
-        .attr('rx', r/3)
-        .attr('rx', r/3)
-        .attr('width', r*4)
-        .attr('height', r)
-        .attr('fill', function(node) {
-            return colors()[keys.indexOf(node)+1];
-        })
-        .attr('stroke', function(node) {
-            return "#000000";
-        })
-        .attr('stroke-width', function(node) {
-            return "0.5px";
-        })
-        .attr("cursor", "pointer")
-        .on('click', function(n) {
-            if (typeof options.onViewsClickHandler === 'function') {
-                options.onViewsClickHandler(n);
-            }
-        });
-        
+            .attr('x', r)
+            .attr('y', function (node) {
+                return (keys.indexOf(node) + 1) * 2.2 * r + 27;
+            })
+            .attr('rx', r / 3)
+            .attr('rx', r / 3)
+            .attr('width', r * 4)
+            .attr('height', r)
+            .attr('fill', function (node) {
+                return colors()[keys.indexOf(node) + 1];
+            })
+            .attr('stroke', function (node) {
+                return "#000000";
+            })
+            .attr('stroke-width', function (node) {
+                return "0.5px";
+            })
+            .attr("cursor", "pointer")
+            .on('click', function (n) {
+                if (typeof options.onViewsClickHandler === 'function') {
+                    options.onViewsClickHandler(n);
+                }
+            })
+            .on('mouseover', function (n) {
+                if (typeof options.onViewsMouseOverHandler === 'function') {
+                    options.onViewsMouseOverHandler(n);
+                }
+            }).on('mouseleave', function (n) {
+                if (typeof options.onViewsMouseLeaveHandler === 'function') {
+                    options.onViewsMouseLeaveHandler(n);
+                }
+            });
+
         var text = d3.select('svg').selectAll('text.views').data(keys);
-        text.enter().append('text').classed('views',true)
-        .attr('text-anchor', 'left')
-        .attr('font-weight', 'bold')
-        .attr('stroke-width' , '0')
-        .attr('stroke-color' , 'white')
-        .attr('fill' , '#696969')
-        .attr('x' , 2*r)
-        .attr('font-size' , "10px")
-        .attr("cursor", "pointer")
-        .text(function(node) {
-            return node;
-        }).attr('y', function(node) {
-            return (keys.indexOf(node)+1)*2.2*r+40;
-        })
-        .on('click', function(n) {
-            if (typeof options.onViewsClickHandler === 'function') {
-                options.onViewsClickHandler(n);
+        text.enter().append('text').classed('views', true)
+            .attr('text-anchor', 'left')
+            .attr('font-weight', 'bold')
+            .attr('stroke-width', '0')
+            .attr('stroke-color', 'white')
+            .attr('fill', '#696969')
+            .attr('x', 2 * r)
+            .attr('font-size', "10px")
+            .attr("cursor", "pointer")
+            .text(function (node) {
+                return node;
+            }).attr('y', function (node) {
+                return (keys.indexOf(node) + 1) * 2.2 * r + 40;
+            })
+            .on('click', function (n) {
+                if (typeof options.onViewsClickHandler === 'function') {
+                    options.onViewsClickHandler(n);
+                }
+            })
+            .on('mouseover', function (n) {
+                if (typeof options.onViewsMouseOverHandler === 'function') {
+                    options.onViewsMouseOverHandler(n);
+                }
+            })
+            .on('mouseleave', function (n) {
+            if (typeof options.onViewsMouseLeaveHandler === 'function') {
+                options.onViewsMouseLeaveHandler(n);
             }
         });
         return circles.exit().remove();
     }
 
-    function getGraph() {
-        return {'nodes': nodes, 'relationships' : relationships };
+    function highlightNodes(nodes) {
+        nodes.forEach(function (node) {
+            d3.select("#" + node.uuid)
+                .classed('node-highlighted', true);
+        });
     }
-      
+
+    function unHighlightNodes(nodes) {
+        nodes.forEach(function (node) {
+            d3.select("#" + node.uuid)
+                .classed('node-highlighted', false);
+        });
+    }
+
+    function getGraph() {
+        return { 'nodes': nodes, 'relationships': relationships };
+    }
+
     return {
         appendRandomDataToNode: appendRandomDataToNode,
         neo4jDataToD3Data: neo4jDataToD3Data,
@@ -1168,6 +1186,8 @@ function Neo4jD3(_selector, _options) {
         resetWithNeo4jData: resetWithNeo4jData,
         removeNode: removeNode,
         createViews: createViews,
+        highlightNodes: highlightNodes,
+        unHighlightNodes: unHighlightNodes,
         getGraph: getGraph,
         version: version
     };
