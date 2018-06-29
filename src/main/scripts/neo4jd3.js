@@ -963,7 +963,7 @@ function Neo4jD3(_selector, _options) {
     }
 
     function updateWithD3Data(d3Data) {
-        updateNodesAndRelationships(d3Data.nodes, d3Data.relationships);
+        updateNodesAndRelationships(d3Data.nodes, d3Data.relationships, true);
     }
 
     function updateWithNeo4jData(neo4jData) {
@@ -987,8 +987,10 @@ function Neo4jD3(_selector, _options) {
         });
     }
 
-    function updateNodes(n) {
-        Array.prototype.push.apply(nodes, n);
+    function updateNodes(n, append) {
+        if (append) {
+            Array.prototype.push.apply(nodes, n);
+        }
 
         node = svgNodes.selectAll('.node')
             .data(nodes, function (d) { return d.id; });
@@ -996,16 +998,18 @@ function Neo4jD3(_selector, _options) {
         node = nodeEnter.merge(node);
     }
 
-    function updateNodesAndRelationships(n, r) {
-        updateRelationships(r);
-        updateNodes(n);
+    function updateNodesAndRelationships(n, r, append) {
+        updateRelationships(r, append);
+        updateNodes(n, append);
 
         simulation.nodes(nodes);
         simulation.force('link').links(relationships);
     }
 
-    function updateRelationships(r) {
-        Array.prototype.push.apply(relationships, r);
+    function updateRelationships(r, append) {
+        if (append) {
+            Array.prototype.push.apply(relationships, r);
+        }
 
         relationship = svgRelationships.selectAll('.relationship')
             .data(relationships, function (d) { return d.id; });
@@ -1066,11 +1070,9 @@ function Neo4jD3(_selector, _options) {
         nodes = nodes.filter(function (node) {
             return node !== sourceNode;
         });
-
+        
         d3.select("#" + sourceNode.uuid).remove();
-        simulation.nodes(nodes);
-        simulation.force('link').links(relationships);
-
+        updateNodesAndRelationships(nodes, relationships, false);
     }
 
     function guid() {
@@ -1184,9 +1186,10 @@ function Neo4jD3(_selector, _options) {
                 y += 130;
                 x = 700;
             }
+            x += 150;
+            
             node.fx = x;
             node.fy = y;
-            x += 150;
         });
     }
 
@@ -1205,9 +1208,9 @@ function Neo4jD3(_selector, _options) {
                 y = 200;
                 x += 150;
             }
+            y += 150;
             node.fx = x;
             node.fy = y;
-            y += 150;
         });
     }
 
