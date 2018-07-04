@@ -58,23 +58,31 @@ function Neo4jD3(_selector, _options) {
             .attr('class', 'nodes');
     }
 
+    // function appendImageToNode(node) {
+    //     return node.append('image')
+    //         .attr('height', function (d) {
+    //             return icon(d) ? '24px' : '30px';
+    //         })
+    //         .attr('x', function (d) {
+    //             return icon(d) ? '5px' : '-15px';
+    //         })
+    //         .attr('xlink:href', function (d) {
+    //             return 'https://twemoji.maxcdn.com/36x36/2795.png';
+    //         })
+    //         .attr('y', function (d) {
+    //             return icon(d) ? '5px' : '-16px';
+    //         })
+    //         .attr('width', function (d) {
+    //             return icon(d) ? '24px' : '30px';
+    //         });
+    // }
+
     function appendImageToNode(node) {
         return node.append('image')
-            .attr('height', function (d) {
-                return icon(d) ? '24px' : '30px';
-            })
-            .attr('x', function (d) {
-                return icon(d) ? '5px' : '-15px';
-            })
-            .attr('xlink:href', function (d) {
-                return image(d);
-            })
-            .attr('y', function (d) {
-                return icon(d) ? '5px' : '-16px';
-            })
-            .attr('width', function (d) {
-                return icon(d) ? '24px' : '30px';
-            });
+            .attr('height', '24px')
+            .attr('x', '5px')
+            .attr('y', '5px')
+            .attr('width', '24px');
     }
 
     function appendInfoPanel(container) {
@@ -217,10 +225,7 @@ function Neo4jD3(_selector, _options) {
         appendRingToNode(n);
         appendOutlineToNode(n);
         appendTextToNode(n);
-
-        if (options.images) {
-            appendImageToNode(n);
-        }
+        appendImageToNode(n);
 
         return n;
     }
@@ -977,9 +982,13 @@ function Neo4jD3(_selector, _options) {
         });
 
         var parentLink = links.find(function (link) {
-            return rules.link === link.type.toLowerCase() && link.target.labels[0] === rules[node.labels[0].toLowerCase()];
+            return rules.link === link.type.toLowerCase() && link.target.labels[0].toLowerCase() === rules[node.labels[0].toLowerCase()];
         });
 
+        if (!parentLink) {
+            return;
+        }
+        
         parentLink.target.collapsed = true;
 
         links.splice(links.indexOf(parentLink), 1);
