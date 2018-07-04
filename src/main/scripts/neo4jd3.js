@@ -3,7 +3,7 @@
 'use strict';
 
 function Neo4jD3(_selector, _options) {
-    var container, graph, info, node, nodes, relationship, relationshipOutline, relationshipOverlay, relationshipText, relationships, selector, simulation, svg, svgNodes, svgRelationships, svgScale, svgTranslate,
+    var container, graph, info, node, nodes, relationship, relationshipOutline, relationshipOverlay, relationshipText, relationships, relationshipsCopy, selector, simulation, svg, svgNodes, svgRelationships, svgScale, svgTranslate,
         classes2colors = {},
         justLoaded = false,
         numClasses = 0,
@@ -180,7 +180,6 @@ function Neo4jD3(_selector, _options) {
                 return classes;
             })
             .on('click', function (d) {
-                d.fx = d.fy = null;
                 if (typeof options.onNodeClick === 'function') {
                     options.onNodeClick(d);
                 }
@@ -523,6 +522,10 @@ function Neo4jD3(_selector, _options) {
         } else {
             console.error('Error: both neo4jData and neo4jDataUrl are empty!');
         }
+
+        relationshipsCopy = relationships.map(function (a) {
+            return Object.assign({}, a);
+        });
     }
 
     function initIconMap() {
@@ -899,6 +902,111 @@ function Neo4jD3(_selector, _options) {
         });
     }
 
+    function expandNode(currentNode) {
+
+        var data = {
+            nodes: [],
+            relationships: []
+        };
+
+        var s = size();
+
+        currentNode.previous.forEach(function (n, i) {
+            // Create new node
+            var node = {
+                id: n.node.id,
+                labels: n.node.labels,
+                properties: n.node.properties,
+                x: currentNode.x,
+                y: currentNode.y
+            };
+            data.nodes[data.nodes.length] = node;
+
+            // Create link from new node to its parent
+            data.relationships[data.relationships.length] = {
+                id: n.link.id,
+                type: n.link.type,
+                properties: n.link.properties,
+                startNode: node.id,
+                endNode: currentNode.id,
+                source: node.id,
+                target: currentNode.id,
+                linknum: s.relationships + 1 + i
+            };
+
+            // Find original links 
+
+            var links = relationshipsCopy.filter(function (link) {
+                return link.source.id === node.id || link.target.id === node.id;
+            });
+
+            // Get links of the parent node
+            var parentLinks = relationships.filter(function (link) {
+                return link.source === currentNode || link.target === currentNode;
+            });
+
+            // Update the links to the newly created node
+            links.forEach(function (link) {
+                var parentLink = parentLinks.find(function (p) {
+                    return p.id === link.id;
+                });
+
+                if (parentLink) {
+                    if (link.source.id === node.id) {
+                        parentLink.source = node;
+                    } else {
+                        parentLink.target = node;
+                    }
+                }
+            });
+        });
+
+        currentNode.collapsed = false;
+        currentNode.previous = [];
+
+        updateWithD3Data(data);
+    }
+
+    function collapseNode(node, rules) {
+        if (!rules[node.labels[0].toLowerCase()]) {
+            return;
+        }
+
+        var links = relationships.filter(function (link) {
+            return link.source === node || link.target === node;
+        });
+
+        var parentLink = links.find(function (link) {
+            return rules.link === link.type.toLowerCase() && link.target.labels[0] === rules[node.labels[0].toLowerCase()];
+        });
+
+        parentLink.target.collapsed = true;
+
+        links.splice(links.indexOf(parentLink), 1);
+
+        if (!parentLink.target.previous) {
+            parentLink.target.previous = [];
+        }
+
+        parentLink.target.previous.push({
+            node: node,
+            link: parentLink
+        });
+
+        links.forEach(function (link) {
+            link.collapsed = true;
+            if (link.source === node) {
+                link.source = parentLink.target;
+                link.startNode = parentLink.target.id;
+            } else {
+                link.target = parentLink.target;
+                link.endNode = parentLink.target.id;
+            }
+        });
+
+        removeNode(node);
+    }
+
     function tickRelationshipsOverlays() {
         relationshipOverlay.attr('d', function (d) {
             var center = { x: 0, y: 0 },
@@ -1070,7 +1178,7 @@ function Neo4jD3(_selector, _options) {
         nodes = nodes.filter(function (node) {
             return node !== sourceNode;
         });
-        
+
         d3.select("#" + sourceNode.uuid).remove();
         updateNodesAndRelationships(nodes, relationships, false);
     }
@@ -1187,7 +1295,7 @@ function Neo4jD3(_selector, _options) {
                 x = 700;
             }
             x += 150;
-            
+
             node.fx = x;
             node.fy = y;
         });
@@ -1235,6 +1343,8 @@ function Neo4jD3(_selector, _options) {
         orientForceGraphVertical: orientForceGraphVertical,
         orientForceGraphHorizontal: orientForceGraphHorizontal,
         getGraph: getGraph,
+        collapseNode: collapseNode,
+        expandNode: expandNode,
         version: version
     };
 }
