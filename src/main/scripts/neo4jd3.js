@@ -890,7 +890,6 @@ function Neo4jD3(_selector, _options) {
                     rotatedPointE2 = rotatePoint(center, { x: d.target.x - d.source.x - (options.nodeRadius + 1) * u.x + (- n.x - u.x) * options.arrowSize, y: d.target.y - d.source.y - (options.nodeRadius + 1) * u.y + (- n.y - u.y) * options.arrowSize }, angle),
                     rotatedPointF2 = rotatePoint(center, { x: d.target.x - d.source.x - (options.nodeRadius + 1) * u.x - u.x * options.arrowSize, y: d.target.y - d.source.y - (options.nodeRadius + 1) * u.y - u.y * options.arrowSize }, angle),
                     rotatedPointG2 = rotatePoint(center, { x: d.target.x - d.source.x - textMargin.x, y: d.target.y - d.source.y - textMargin.y }, angle);
-
                 return 'M ' + rotatedPointA1.x + ' ' + rotatedPointA1.y +
                     ' L ' + rotatedPointB1.x + ' ' + rotatedPointB1.y +
                     ' L ' + rotatedPointC1.x + ' ' + rotatedPointC1.y +
@@ -905,117 +904,6 @@ function Neo4jD3(_selector, _options) {
                     ' Z';
             });
         });
-    }
-
-    function expandNode(currentNode) {
-
-        var data = {
-            nodes: [],
-            relationships: []
-        };
-
-        var s = size();
-
-        currentNode.previous.forEach(function (n, i) {
-            // Create new node
-            var node = {
-                id: n.node.id,
-                labels: n.node.labels,
-                properties: n.node.properties,
-                x: currentNode.x + 90,
-                y: currentNode.y + 90,
-                fx: currentNode.fx + 90,
-                fy: currentNode.fy + 90,
-            };
-            data.nodes[data.nodes.length] = node;
-
-            // Create link from new node to its parent
-            data.relationships[data.relationships.length] = {
-                id: n.link.id,
-                type: n.link.type,
-                properties: n.link.properties,
-                startNode: node.id,
-                endNode: currentNode.id,
-                source: node.id,
-                target: currentNode.id,
-                linknum: s.relationships + 1 + i
-            };
-
-            // Find original links 
-
-            var links = relationshipsCopy.filter(function (link) {
-                return link.source.id === node.id || link.target.id === node.id;
-            });
-
-            // Get links of the parent node
-            var parentLinks = relationships.filter(function (link) {
-                return link.source === currentNode || link.target === currentNode;
-            });
-
-            // Update the links to the newly created node
-            links.forEach(function (link) {
-                var parentLink = parentLinks.find(function (p) {
-                    return p.id === link.id;
-                });
-
-                if (parentLink) {
-                    if (link.source.id === node.id) {
-                        parentLink.source = node;
-                    } else {
-                        parentLink.target = node;
-                    }
-                }
-            });
-        });
-
-        currentNode.collapsed = false;
-        currentNode.previous = [];
-
-        updateWithD3Data(data);
-    }
-
-    function collapseNode(node, rules) {
-        if (!rules[node.labels[0].toLowerCase()]) {
-            return;
-        }
-
-        var links = relationships.filter(function (link) {
-            return link.source === node || link.target === node;
-        });
-
-        var parentLink = links.find(function (link) {
-            return rules.link === link.type.toLowerCase() && link.target.labels[0].toLowerCase() === rules[node.labels[0].toLowerCase()];
-        });
-
-        if (!parentLink) {
-            return;
-        }
-        
-        parentLink.target.collapsed = true;
-
-        links.splice(links.indexOf(parentLink), 1);
-
-        if (!parentLink.target.previous) {
-            parentLink.target.previous = [];
-        }
-
-        parentLink.target.previous.push({
-            node: node,
-            link: parentLink
-        });
-
-        links.forEach(function (link) {
-            link.collapsed = true;
-            if (link.source === node) {
-                link.source = parentLink.target;
-                link.startNode = parentLink.target.id;
-            } else {
-                link.target = parentLink.target;
-                link.endNode = parentLink.target.id;
-            }
-        });
-
-        removeNode(node);
     }
 
     function tickRelationshipsOverlays() {
@@ -1337,6 +1225,117 @@ function Neo4jD3(_selector, _options) {
         return { 'nodes': nodes, 'relationships': relationships };
     }
 
+    
+    function expandNode(currentNode) {
+
+        var data = {
+            nodes: [],
+            relationships: []
+        };
+
+        var s = size();
+
+        currentNode.previous.forEach(function (n, i) {
+            // Create new node
+            var node = {
+                id: n.node.id,
+                labels: n.node.labels,
+                properties: n.node.properties,
+                x: currentNode.x + 90,
+                y: currentNode.y + 90,
+                fx: currentNode.fx + 90,
+                fy: currentNode.fy + 90,
+            };
+            data.nodes[data.nodes.length] = node;
+
+            // Create link from new node to its parent
+            data.relationships[data.relationships.length] = {
+                id: n.link.id,
+                type: n.link.type,
+                properties: n.link.properties,
+                startNode: node.id,
+                endNode: currentNode.id,
+                source: node.id,
+                target: currentNode.id,
+                linknum: s.relationships + 1 + i
+            };
+
+            // Find original links 
+
+            var links = relationshipsCopy.filter(function (link) {
+                return link.source.id === node.id || link.target.id === node.id;
+            });
+
+            // Get links of the parent node
+            var parentLinks = relationships.filter(function (link) {
+                return link.source === currentNode || link.target === currentNode;
+            });
+
+            // Update the links to the newly created node
+            links.forEach(function (link) {
+                var parentLink = parentLinks.find(function (p) {
+                    return p.id === link.id;
+                });
+
+                if (parentLink) {
+                    if (link.source.id === node.id) {
+                        parentLink.source = node;
+                    } else {
+                        parentLink.target = node;
+                    }
+                }
+            });
+        });
+
+        currentNode.collapsed = false;
+        currentNode.previous = [];
+
+        updateWithD3Data(data);
+    }
+
+    function collapseNode(node, rules) {
+        if (!rules[node.labels[0].toLowerCase()]) {
+            return;
+        }
+
+        var links = relationships.filter(function (link) {
+            return link.source === node || link.target === node;
+        });
+
+        var parentLink = links.find(function (link) {
+            return rules.link.includes(link.type.toLowerCase())  && link.target.labels[0].toLowerCase() === rules[node.labels[0].toLowerCase()];
+        });
+
+        if (!parentLink) {
+            return;
+        }
+        
+        parentLink.target.collapsed = true;
+
+        links.splice(links.indexOf(parentLink), 1);
+
+        if (!parentLink.target.previous) {
+            parentLink.target.previous = [];
+        }
+
+        parentLink.target.previous.push({
+            node: node,
+            link: parentLink
+        });
+
+        links.forEach(function (link) {
+            link.collapsed = true;
+            if (link.source === node) {
+                link.source = parentLink.target;
+                link.startNode = parentLink.target.id;
+            } else {
+                link.target = parentLink.target;
+                link.endNode = parentLink.target.id;
+            }
+        });
+
+        removeNode(node);
+    }
     return {
         appendRandomDataToNode: appendRandomDataToNode,
         neo4jDataToD3Data: neo4jDataToD3Data,
