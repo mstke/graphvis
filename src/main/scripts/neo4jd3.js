@@ -922,8 +922,10 @@ function Neo4jD3(_selector, _options) {
                 id: n.node.id,
                 labels: n.node.labels,
                 properties: n.node.properties,
-                x: currentNode.x,
-                y: currentNode.y
+                x: currentNode.x + 90,
+                y: currentNode.y + 90,
+                fx: currentNode.fx + 90,
+                fy: currentNode.fy + 90,
             };
             data.nodes[data.nodes.length] = node;
 
