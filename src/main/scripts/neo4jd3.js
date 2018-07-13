@@ -627,32 +627,29 @@ function Neo4jD3(_selector, _options) {
             relationships: []
         },
             node,
-            relationship,
-            s = size(),
-            map = {};
+            relationship;
+
         for (var i = 0; i < newNodes.length; i++) {
             node = {
-                id: s.nodes + 1 + i,
+                id: newNodes[i].id,
                 labels: newNodes[i].labels,
                 properties: newNodes[i].properties,
                 x: sourceNode.x,
                 y: sourceNode.y
             };
-            map[newNodes[i].id] = node.id;
             data.nodes[data.nodes.length] = node;
         }
 
         for (var j = 0; j < newRelationships.length; j++) {
 
             relationship = {
-                id: s.relationships + 1 + j,
+                id: newRelationships[j].id,
                 type: newRelationships[j].type,
                 startNode: sourceNode.id.toString(),
-                endNode: map[newRelationships[j].endNode],
+                endNode: newRelationships[j].endNode,
                 properties: newRelationships[j].properties,
                 source: sourceNode.id,
-                target: map[newRelationships[j].endNode],
-                linknum: s.relationships + 1 + j
+                target: newRelationships[j].endNode,
             };
 
             data.relationships[data.relationships.length] = relationship;
@@ -667,30 +664,26 @@ function Neo4jD3(_selector, _options) {
             relationships: []
         },
             node,
-            relationship,
-            s = size(),
-            map = {};
+            relationship;
         for (var i = 0; i < newNodes.length; i++) {
             node = {
-                id: s.nodes + 1 + i,
+                id: newNodes[i].id,
                 labels: newNodes[i].labels,
                 properties: newNodes[i].properties,
                 x: sourceNode.x,
                 y: sourceNode.y
             };
-            map[newNodes[i].id] = node.id;
             data.nodes[data.nodes.length] = node;
         }
         for (var j = 0; j < newRelationships.length; j++) {
             relationship = {
-                id: s.relationships + 1 + j,
+                id: newRelationships[j].id,
                 type: newRelationships[j].type,
-                startNode: map[newRelationships[j].startNode],
+                startNode: newRelationships[j].startNode,
                 endNode: sourceNode.id.toString(),
                 properties: newRelationships[j].properties,
-                source: map[newRelationships[j].startNode],
+                source: newRelationships[j].startNode,
                 target: sourceNode.id,
-                linknum: s.relationships + 1 + j
             };
 
             data.relationships[data.relationships.length] = relationship;
