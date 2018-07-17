@@ -1141,14 +1141,16 @@ function Neo4jD3(_selector, _options) {
 
         currentNode.previous.forEach(function (n, i) {
             // Create new node
+            
+            var rand = + Math.floor((Math.random() * 200) - 75);
             var node = {
                 id: n.node.id,
                 labels: n.node.labels,
                 properties: n.node.properties,
-                x: currentNode.x + 90,
-                y: currentNode.y + 90,
-                fx: currentNode.fx + 90,
-                fy: currentNode.fy + 90,
+                x: currentNode.x + rand,
+                y: currentNode.y + rand,
+                fx: currentNode.fx + rand,
+                fy: currentNode.fy + rand,
             };
             data.nodes[data.nodes.length] = node;
 
@@ -1215,7 +1217,7 @@ function Neo4jD3(_selector, _options) {
         }
 
         parentLink.target.collapsed = true;
-
+        
         links.splice(links.indexOf(parentLink), 1);
 
         if (!parentLink.target.previous) {
