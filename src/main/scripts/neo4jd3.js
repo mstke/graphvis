@@ -524,10 +524,16 @@ function Neo4jD3(_selector, _options) {
             .force('collide', d3.forceCollide().radius(function (d) {
                 return options.minCollision;
             }))
-            .force('charge', d3.forceManyBody())
-            .force('link', d3.forceLink().id(function (d) {
-                return d.id;
-            }))
+            .force('charge', d3.forceManyBody()
+                .strength(-20)
+                .distanceMax(150)
+                .distanceMin(50))
+            .force('link', d3.forceLink()
+                .id(function (d) {
+                    return d.id;
+                })
+                .distance(50)
+            )
             .force('center', d3.forceCenter(svg.node().parentElement.parentElement.clientWidth / 2, svg.node().parentElement.parentElement.clientHeight / 2))
             .on('tick', function () {
                 tick();
@@ -750,6 +756,7 @@ function Neo4jD3(_selector, _options) {
 
     function tickNodes() {
         if (node) {
+
             node.attr('transform', function (d) {
                 return 'translate(' + d.x + ', ' + d.y + ')';
             });
@@ -759,6 +766,14 @@ function Neo4jD3(_selector, _options) {
     function tickRelationships() {
         if (relationship) {
             relationship.attr('transform', function (d) {
+                var distanceBetweenNodes = Math.sqrt(Math.pow(d.source.x - d.target.x, 2) + Math.pow(d.source.y - d.target.y, 2));
+                // Fix nodes if the distance is bigger than indicated length
+                if (distanceBetweenNodes > 400) {
+                    d.source.fx = d.source.x;
+                    d.source.fy = d.source.y;
+                    d.target.fx = d.target.x;
+                    d.target.fy = d.target.y;
+                }
                 var angle = rotation(d.source, d.target);
                 return 'translate(' + d.source.x + ', ' + d.source.y + ') rotate(' + angle + ')';
             });
@@ -1141,7 +1156,7 @@ function Neo4jD3(_selector, _options) {
 
         currentNode.previous.forEach(function (n, i) {
             // Create new node
-            
+
             var rand = + Math.floor((Math.random() * 200) - 75);
             var node = {
                 id: n.node.id,
@@ -1217,7 +1232,7 @@ function Neo4jD3(_selector, _options) {
         }
 
         parentLink.target.collapsed = true;
-        
+
         links.splice(links.indexOf(parentLink), 1);
 
         if (!parentLink.target.previous) {
