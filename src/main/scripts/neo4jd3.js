@@ -1,6 +1,7 @@
 /* global d3, document */
 /* jshint latedef:nofunc */
 'use strict';
+var d3 = require('d3');
 
 function Neo4jD3(_selector, _options) {
     var container, graph, info, node, nodes, relationship, relationshipOutline, relationshipOverlay, relationshipText, relationships, relationshipsCopy, selector, simulation, svg, svgNodes, svgRelationships, svgScale, svgTranslate,
