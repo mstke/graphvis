@@ -627,7 +627,7 @@ function Neo4jD3(_selector, _options) {
         return graph;
     }
 
-    function appendDataToNodeOutward(sourceNode, newNodes, newRelationships) {
+    function appendDataToNode(sourceNode, newNodes, newRelationships) {
         var data = {
             nodes: [],
             relationships: []
@@ -648,53 +648,19 @@ function Neo4jD3(_selector, _options) {
 
         for (var j = 0; j < newRelationships.length; j++) {
 
-            relationship = {
-                id: newRelationships[j].id,
-                type: newRelationships[j].type,
-                startNode: sourceNode.id.toString(),
-                endNode: newRelationships[j].endNode,
-                properties: newRelationships[j].properties,
-                source: sourceNode.id,
-                target: newRelationships[j].endNode,
-            };
-
-            data.relationships[data.relationships.length] = relationship;
-        }
-        updateWithD3Data(data);
-    }
-
-
-    function appendDataToNodeInward(sourceNode, newNodes, newRelationships) {
-        var data = {
-            nodes: [],
-            relationships: []
-        },
-            node,
-            relationship;
-        for (var i = 0; i < newNodes.length; i++) {
-            node = {
-                id: newNodes[i].id,
-                labels: newNodes[i].labels,
-                properties: newNodes[i].properties,
-                x: sourceNode.x,
-                y: sourceNode.y
-            };
-            data.nodes[data.nodes.length] = node;
-        }
-        for (var j = 0; j < newRelationships.length; j++) {
             relationship = {
                 id: newRelationships[j].id,
                 type: newRelationships[j].type,
                 startNode: newRelationships[j].startNode,
-                endNode: sourceNode.id.toString(),
+                endNode: newRelationships[j].endNode,
                 properties: newRelationships[j].properties,
-                source: newRelationships[j].startNode,
-                target: sourceNode.id,
+                source: newRelationships[j].source,
+                target: newRelationships[j].endNode,
             };
-
             data.relationships[data.relationships.length] = relationship;
         }
         updateWithD3Data(data);
+
     }
 
     function rotate(cx, cy, x, y, angle) {
@@ -1263,8 +1229,7 @@ function Neo4jD3(_selector, _options) {
         size: size,
         updateWithD3Data: updateWithD3Data,
         updateWithNeo4jData: updateWithNeo4jData,
-        appendDataToNodeOutward: appendDataToNodeOutward,
-        appendDataToNodeInward: appendDataToNodeInward,
+        appendDataToNode: appendDataToNode,
         resetWithNeo4jData: resetWithNeo4jData,
         removeNode: removeNode,
         createViews: createViews,
