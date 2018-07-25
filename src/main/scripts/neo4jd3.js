@@ -902,8 +902,14 @@ function Neo4jD3(_selector, _options) {
     function updateRelationships(r, append) {
         if (append) {
             Array.prototype.push.apply(relationships, r);
+            r.forEach(function(rel) {
+              if (!relationshipsCopy.find(function(relCopy) {
+                return rel.id === relCopy.id;
+              })) {
+                relationshipsCopy.push(Object.assign({}, rel));
+              }
+            });
         }
-
         relationship = svgRelationships.selectAll('.relationship')
             .data(relationships, function (d) { return d.id; });
 
@@ -1149,14 +1155,13 @@ function Neo4jD3(_selector, _options) {
             };
 
             // Find original links 
-
             var links = relationshipsCopy.filter(function (link) {
-                return link.source.id === node.id || link.target.id === node.id;
+                return link.endNode === node.id || link.startNode === node.id;
             });
 
             // Get links of the parent node
             var parentLinks = relationships.filter(function (link) {
-                return link.source === currentNode || link.target === currentNode;
+              return link.source === currentNode || link.target === currentNode;
             });
 
             // Update the links to the newly created node
@@ -1166,7 +1171,7 @@ function Neo4jD3(_selector, _options) {
                 });
 
                 if (parentLink) {
-                    if (link.source.id === node.id) {
+                    if (link.startNode === node.id) {
                         parentLink.source = node;
                     } else {
                         parentLink.target = node;
@@ -1181,6 +1186,7 @@ function Neo4jD3(_selector, _options) {
         updateWithD3Data(data);
     }
 
+
     function collapseNode(node, rules) {
         if (!rules[node.labels[0].toLowerCase()]) {
             return;
@@ -1189,9 +1195,9 @@ function Neo4jD3(_selector, _options) {
         var links = relationships.filter(function (link) {
             return link.source === node || link.target === node;
         });
-
+        
         var parentLink = links.find(function (link) {
-            return rules.link.includes(link.type.toLowerCase()) && link.target.labels[0].toLowerCase() === rules[node.labels[0].toLowerCase()];
+          return rules.link.includes(link.type.toLowerCase()) && link.target.labels[0].toLowerCase() === rules[node.labels[0].toLowerCase()];
         });
 
         if (!parentLink) {
@@ -1215,10 +1221,10 @@ function Neo4jD3(_selector, _options) {
             link.collapsed = true;
             if (link.source === node) {
                 link.source = parentLink.target;
-                link.startNode = parentLink.target.id;
+                link.startNode = parentLink.endNode;
             } else {
                 link.target = parentLink.target;
-                link.endNode = parentLink.target.id;
+                link.endNode = parentLink.endNode;
             }
         });
 
