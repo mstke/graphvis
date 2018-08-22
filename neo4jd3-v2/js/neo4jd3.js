@@ -352,7 +352,7 @@ export function Neo4jd3(_selector, _options) {
         },
             node,
             relationship;
-
+        
         for (let i = 0; i < newNodes.length; i++) {
             node = {
                 id: newNodes[i].id,
@@ -408,9 +408,11 @@ export function Neo4jd3(_selector, _options) {
     function updateNodesAndRelationships(n, r, append) {
         let relationshipObj = updateRelationships(r, append);
         let node = updateNodes(n, append);
-
+        if (simulation) {
+            simulation.stop();
+        } 
         simulation = initSimulation(container.container, node, relationshipObj);
-
+        simulation.restart();
         simulation.nodes(nodes);
         simulation.force('link').links(relationships);
     }

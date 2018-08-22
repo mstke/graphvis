@@ -1,6 +1,4 @@
 var debug = process.env.NODE_ENV !== "production";
-var webpack = require('webpack');
-var path = require('path');
 
 module.exports = {
   context: __dirname,
@@ -22,7 +20,7 @@ module.exports = {
   },
   output: {
     path: __dirname + "/dist/",
-    filename: "client.min.js",
+    filename: "neo4jd3.min.js",
     libraryTarget: "umd"
   },
 };
